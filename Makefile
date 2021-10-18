@@ -37,7 +37,7 @@ run: ## Run container on port configured in `config.env`
 	docker run -v $(PWD):/application -w /application -i -t --rm --env-file=./config.env -p=$(PORT):$(PORT) --name="$(APP_NAME)" $(APP_NAME)
 
 shell: ## Run shell in container
-	docker run -it -v $(PWD):/application node /bin/bash
+	docker run -it -v $(PWD):/application -w /application node /bin/bash
 
 up: build run ## Run container on port configured in `config.env` (Alias to run)
 
