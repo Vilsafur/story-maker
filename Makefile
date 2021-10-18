@@ -36,6 +36,8 @@ build-nc: ## Build the container without caching
 run: ## Run container on port configured in `config.env`
 	docker run -i -t --rm --env-file=./config.env -p=$(PORT):$(PORT) --name="$(APP_NAME)" $(APP_NAME)
 
+shell: ## Run shell in container
+	docker run -it -v $(PWD):/application node /bin/bash
 
 up: build run ## Run container on port configured in `config.env` (Alias to run)
 
@@ -45,7 +47,7 @@ stop: ## Stop and remove a running container
 release: build-nc publish ## Make a release by building and publishing the `{version}` ans `latest` tagged containers to ECR
 
 # Docker publish
-publish: repo-login publish-latest publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
+publish: publish-latest publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
 
 publish-latest: tag-latest ## Publish the `latest` taged container to ECR
 	@echo 'publish latest to $(DOCKER_REPO)'
@@ -67,20 +69,6 @@ tag-version: ## Generate container `latest` tag
 	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
 
 # HELPERS
-
-# generate script to login to aws docker repo
-CMD_REPOLOGIN := "eval $$\( aws ecr"
-ifdef AWS_CLI_PROFILE
-CMD_REPOLOGIN += " --profile $(AWS_CLI_PROFILE)"
-endif
-ifdef AWS_CLI_REGION
-CMD_REPOLOGIN += " --region $(AWS_CLI_REGION)"
-endif
-CMD_REPOLOGIN += " get-login --no-include-email \)"
-
-# login to AWS-ECR
-repo-login: ## Auto login to AWS-ECR unsing aws-cli
-	@eval $(CMD_REPOLOGIN)
 
 version: ## Output the current version
 	@echo $(VERSION)
